@@ -15,6 +15,11 @@ textArea.onkeydown = e => {
 form.onsubmit = async e => {
     e.preventDefault();
     const content = textArea.value;
+
+    // 立即清空缩略图和重置文件输入框
+    const preview = document.querySelector('.img-preview');
+    preview.innerHTML = ''; // 清空预览区
+
     createUserContent('鲁');
     const robot = createRobotContent();
 
@@ -33,10 +38,11 @@ form.onsubmit = async e => {
         method: 'POST',
         body: formData
     });
+    // 重置文件输入框
+    const fileInput = document.querySelector('.img-upload');
+    fileInput.value = ''; // 直接清空值
     // 流式读取
     const reader = resp.body.getReader();
-    const preview = document.querySelector('.img-preview');
-    preview.innerHTML = ''; // 清空预览区
     const decoder = new TextDecoder();
     while (1) {
         const { done, value } = await reader.read();

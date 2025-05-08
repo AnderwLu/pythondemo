@@ -4,7 +4,7 @@ import pandas as pd
 from antproject.settings import BASE_DIR
 from django.views.decorators.csrf import csrf_exempt
 from django.http import StreamingHttpResponse
-from antapp.openai.textAndPrompting import get_stream_response # type: ignore
+import antapp.openai.textAndPrompting as textAndPrompting  # type: ignore
 # Create your views here.
 def hello(request): 
     return HttpResponse("Hello, World!")
@@ -29,7 +29,7 @@ def deepseek(request):
     if request.method == "POST":
         images = request.FILES.getlist('images')
         keyword = request.POST.get("content")
-        content = get_stream_response(keyword)
+        content = textAndPrompting.get_file_image(keyword, images)
         
         # 处理图片（如果需要的话）
         for image in images:
@@ -38,3 +38,17 @@ def deepseek(request):
         return StreamingHttpResponse(content)
     
     return HttpResponse("清除欧克")
+
+@csrf_exempt
+def get_file_search(request):
+    if request.method == "POST":
+        images = request.FILES.getlist('images')
+        keyword = request.POST.get("content")
+        content = textAndPrompting.get_stream_response_to_file(keyword)
+
+        return StreamingHttpResponse(content)
+    
+    return HttpResponse("清除欧克")
+
+
+
