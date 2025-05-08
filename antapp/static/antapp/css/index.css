@@ -1,0 +1,113 @@
+body {
+    background-color: #343541;
+}
+textarea {
+    width: 100%;
+    border: none !important;
+    outline: none !important;
+    resize: none;
+    padding: 8px;
+    font-size: 16px;
+}
+.title {
+    width: 100%;
+    font-size: 24px;
+    font-weight: bold;
+    background-color: #40414e;
+}
+.send {
+    background: #fff;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+    padding: 0 10px;
+}
+/* 圆形按钮通用样式 */
+.img-btn,
+.submit {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    transition: background 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    padding: 0;
+    background: #f0f0f0;
+}
+
+.img-btn:hover,
+.submit:hover {
+    background: #f0f0f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.img-btn svg,
+.submit svg {
+    width: 22px;
+    height: 22px;
+    color: #444;
+    display: block;
+}
+
+.img-btn:active,
+.submit:active {
+    background: #e0e0e0;
+}
+
+.main {
+    padding-bottom: 115px !important;
+}
+
+.block {
+    padding: 12px;
+    border-bottom: 1px solid rgba(32, 33, 35, 0.5);
+}
+
+.user {
+    background: #343541;
+    color: #e2e5e9;
+}
+
+.robot {
+    background: #40414e;
+    color: #d1d5db;
+}
+
+.robot .avatar {
+    background: #000;
+}
+
+.container {
+    max-width: 768px;
+    margin: 0 auto;
+    padding: 12px 0;
+    display: flex;
+    column-gap: 20px;
+    align-items: start;
+}
+.avatar {
+    background: #765bbd;
+    width: 30px;
+    height: 30px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.avatar img {
+    width: 22px;
+    height: 22px;
+}
+.robot .avatar {
+    background: #000;
+}
+.markdown-body {
+    background: inherit;
+}
