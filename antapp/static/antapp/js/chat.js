@@ -3,8 +3,17 @@ let url = model.value;
 fetch(url);
 model.onchange = e => {
     url = e.target.value;
-    fetch(url);
+    // 将选择的值存储到 localStorage
+    localStorage.setItem('selectedModel', url);
+    window.location.reload();
 };
+
+// 页面加载时检查并恢复选择的值
+if (localStorage.getItem('selectedModel')) {
+    url = localStorage.getItem('selectedModel');
+    model.value = url;
+    fetch(url);
+}
 
 // 获取form
 const form = document.querySelector('form');

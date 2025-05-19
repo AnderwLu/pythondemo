@@ -4,7 +4,8 @@ import pandas as pd
 from antproject.settings import BASE_DIR
 from django.views.decorators.csrf import csrf_exempt
 from django.http import StreamingHttpResponse
-import antapp.openai.textAndPrompting as textAndPrompting  # type: ignore
+from antapp.openai.aiClient import AiClient  # type: ignore
+import base64
 # Create your views here.
 def hello(request): 
     return HttpResponse("Hello, World!")
@@ -29,7 +30,8 @@ def deepseek(request):
     if request.method == "POST":
         images = request.FILES.getlist('images')
         keyword = request.POST.get("content")
-        content = textAndPrompting.get_file_image(keyword, images)
+        aiClient = AiClient()
+        content = aiClient.get_stream_response(keyword)
         
         # 处理图片（如果需要的话）
         for image in images:
@@ -37,18 +39,43 @@ def deepseek(request):
 
         return StreamingHttpResponse(content)
     
-    return HttpResponse("清除欧克")
+    return HttpResponse("清除成功")
 
 @csrf_exempt
-def get_file_search(request):
+def deepseek_old(request):
+    aiClient = AiClient()
     if request.method == "POST":
         images = request.FILES.getlist('images')
         keyword = request.POST.get("content")
-        content = textAndPrompting.get_stream_response_to_file(keyword)
+        content = aiClient.get_stream_response_old(keyword)
+        
+        # 处理图片（如果需要的话）
+        for image in images:
+            print(image.name)
 
         return StreamingHttpResponse(content)
     
-    return HttpResponse("清除欧克")
+    return HttpResponse("清除成功")
 
+@csrf_exempt
+def deepseek_ams(request):
+    aiClient = AiClient()
+    if request.method == "POST":
+        images = request.FILES.getlist('images')
+        keyword = request.POST.get("content")
+        content = aiClient.get_file_image(keyword, images)
+        return StreamingHttpResponse(content)
+    
+    return HttpResponse("清除成功")
 
+@csrf_exempt
+def deepseek_reasoning(request):
+    aiClient = AiClient()
+    if request.method == "POST":
+        images = request.FILES.getlist('images')
+        keyword = request.POST.get("content")
+        content = aiClient.get_reasoning(keyword)
+        return StreamingHttpResponse(content)
+    
+    return HttpResponse("清除成功")
 
