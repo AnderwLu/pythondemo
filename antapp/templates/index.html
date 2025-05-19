@@ -15,7 +15,21 @@
     </head>
     <body>
         <div class="container-fluid position-relative min-vh-100">
-            <div class="title text-center position-fixed top-0 start-50 translate-middle-x w-100 py-3">🐶🐶🐶🐶🐶</div>
+            <div class="title text-center position-fixed top-0 start-50 translate-middle-x w-100 py-3">
+                <div class="row justify-content-between">
+                    <div class="col-4">🐶🐶🐶🐶🐶</div>
+                    <div class="col-3">
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon3">模型</span>
+                            <select class="form-select" aria-label="Default select example" id="model">
+                                <option value="/deepseek" selected>普通</option>
+                                <option value="/deepseek-coder">账管</option>
+                                <option value="/deepseek-chat">无记忆</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="main content-area py-5">
                 <div class="markdown-body" id="content"></div>
             </div>

@@ -1,5 +1,10 @@
-const url = '/deepseek';
+const model = document.querySelector('#model');
+let url = model.value;
 fetch(url);
+model.onchange = e => {
+    url = e.target.value;
+    fetch(url);
+};
 
 // 获取form
 const form = document.querySelector('form');
