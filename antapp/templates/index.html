@@ -34,7 +34,7 @@
             <div class="main content-area py-5">
                 <div class="markdown-body" id="content"></div>
             </div>
-            <div class="position-fixed bottom-0 start-50 translate-middle-x w-100 py-3 container" style="bottom: 40px">
+            <div class="position-fixed bottom-0 start-50 translate-middle-x w-100 py-3" style="bottom: 0; z-index: 1000; max-width: 70%; left: 50%; transform: translateX(-50%);">
                 <form class="send col align-self-center" enctype="multipart/form-data">
                     <div class="input-area" style="position: relative; width: 100%">
                         <!-- 缩略图预览区，放在textarea上方 -->
@@ -55,8 +55,8 @@
         </div>
         <script src="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/marked/4.0.2/marked.min.js"></script>
         <script src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/highlight.js/11.4.0/highlight.min.js" type="application/javascript"></script>
-        <script src="{% static 'lib/js/bootstrap.bundle.min.js' %}"></script>
         <script src="{% static 'lib/js/jquery.slim.min.js' %}"></script>
+        <script src="{% static 'lib/js/bootstrap.bundle.min.js' %}"></script>
         <script src="{% static 'antapp/js/index.js' %}?v={% now 'U' %}"></script>
         <script src="{% static 'antapp/js/chat.js' %}?v={% now 'U' %}"></script>
     </body>
