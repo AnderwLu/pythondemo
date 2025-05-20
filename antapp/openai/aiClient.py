@@ -131,19 +131,17 @@ class AiClient:
     def get_reasoning(self, user_content):
         logger.info("推理请求，用户消息: %s", user_content)
         try:
-            stream = self.client.chat.completions.create(
-                model="o3-mini",
-                messages=[
+            stream = self.client.responses.create(
+                model="o4-mini",
+                reasoning={"effort": "medium"},
+                input=[
                     {
                         "role": "user", 
                         "content": user_content
                     }
-                ],
-                temperature=0.7,  # 控制输出的随机性，值越低输出越确定
-                top_p=0.9,       # 控制输出的多样性，值越低输出越保守
-                max_tokens=1000,  # 控制输出的最大长度
-                stream=True
+                ]
             )
+
             logger.info("开始接收流式响应")
             for chunk in stream:
                 content = chunk.choices[0].delta.content
