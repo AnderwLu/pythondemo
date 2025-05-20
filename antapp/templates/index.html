@@ -3,13 +3,13 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>ChatGPT-OpenAI</title>
-        <link href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/github-markdown-css/5.1.0/github-markdown-dark.min.css" type="text/css" rel="stylesheet" />
-        <link href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/highlight.js/11.4.0/styles/github-dark.min.css" type="text/css" rel="stylesheet" />
-        <link rel="shortcut icon" href="{% static 'antapp/asset/favicon-32x32.png' %}" type="image/x-icon" />
+        <link rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/github-markdown-css/5.1.0/github-markdown-dark.min.css">
+        <link rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/highlight.js/11.4.0/styles/github-dark.min.css">
+        <link rel="shortcut icon" href="{% static 'antapp/asset/favicon-32x32.png' %}" type="image/x-icon">
         <link rel="stylesheet" href="{% static 'libs/css/bootstrap.min.css' %}" />
         <link rel="stylesheet" href="{% static 'antapp/css/index.css' %}?v={% now 'U' %}" />
     </head>
@@ -41,11 +41,11 @@
                         <div class="img-preview" style="margin-bottom: 8px"></div>
                         <textarea placeholder="请输入内容..." autofocus class="form-control"></textarea>
                         <div class="action-row row justify-content-between">
-                            <button type="button" class="img-btn ms-3">
+                            <button type="button" class="img-btn ms-3" title="上传图片">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="stroke-[2] text-fg-secondary group-hover/attach-button:text-fg-primary transition-colors duration-100"><path d="M10 9V15C10 16.1046 10.8954 17 12 17V17C13.1046 17 14 16.1046 14 15V7C14 4.79086 12.2091 3 10 3V3C7.79086 3 6 4.79086 6 7V15C6 18.3137 8.68629 21 12 21V21C15.3137 21 18 18.3137 18 15V8" stroke="currentColor"></path></svg>
                             </button>
                             <input type="file" accept="image/*" class="img-upload" style="display: none" multiple />
-                            <button class="submit me-3" type="submit">
+                            <button class="submit me-3" type="submit" title="发送消息">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="stroke-[2] relative"><path d="M5 11L12 4M12 4L19 11M12 4V21" stroke="currentColor"></path></svg>
                             </button>
                         </div>
