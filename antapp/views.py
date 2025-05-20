@@ -6,9 +6,26 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import StreamingHttpResponse
 from antapp.openai.aiClient import AiClient  # type: ignore
 import base64
+from antapp.openai.agents.stream import main
+import json
+import os
+import logging
+import tempfile
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
+
 # Create your views here.
 
 aiClient = AiClient()
+
+# 保存业务状态的简单存储（实际应用中应使用数据库）
+business_data = {
+    "license_info": None,
+    "current_session": None,
+}
 
 def hello(request): 
     return HttpResponse("Hello, World!")
@@ -80,3 +97,12 @@ def deepseek_reasoning(request):
     
     return HttpResponse("清除成功")
 
+@csrf_exempt
+def deepseek_agent_stream(request):
+    if request.method == "POST":
+        images = request.FILES.getlist('images')
+        keyword = request.POST.get("content")
+        content = main(keyword)
+        return StreamingHttpResponse(content)
+    aiClient.clear_messages()
+    return HttpResponse("清除成功")

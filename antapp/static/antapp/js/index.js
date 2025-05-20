@@ -104,8 +104,14 @@ var { createUserContent, createRobotContent } = (() => {
         _updateCursor(contentDom);
         const form = document.querySelector('.send');
         form.classList.add('waiting');
+
+        // 为流式输出准备的解析器
+        const parser = new DOMParser();
+        let lastRenderedLength = 0;
+
+        // 追加整个内容（重新渲染）
         function append(text) {
-            content += text;
+            content = text;
             const html = _normalizeContent(content);
             const hitBottom = isBottom();
 
@@ -116,11 +122,66 @@ var { createUserContent, createRobotContent } = (() => {
             _updateCursor(contentDom);
         }
 
+        // 增量追加文本（流式渲染）
+        function appendChunk(chunk) {
+            if (!chunk) return;
+
+            // 更新总内容
+            content += chunk;
+
+            // 使用marked解析增量内容
+            const newHtml = _normalizeContent(content);
+
+            // 如果是第一次渲染或内容变化很大，直接替换整个内容
+            if (lastRenderedLength === 0 || Math.abs(lastRenderedLength - content.length) > 100) {
+                contentDom.innerHTML = newHtml;
+                lastRenderedLength = content.length;
+                return;
+            }
+
+            // 否则，尝试智能地只更新新增部分
+            try {
+                // 解析新的HTML内容
+                const newDoc = parser.parseFromString(newHtml, 'text/html');
+                const newContentDom = newDoc.body.firstChild;
+
+                // 如果新的内容DOM不存在，则回退到完全替换
+                if (!newContentDom) {
+                    contentDom.innerHTML = newHtml;
+                    lastRenderedLength = content.length;
+                    return;
+                }
+
+                // 清空现有内容，添加新内容
+                contentDom.innerHTML = newHtml;
+
+                // 更新渲染长度
+                lastRenderedLength = content.length;
+
+                // 保持滚动位置
+                const hitBottom = isBottom();
+                if (hitBottom) {
+                    document.documentElement.scrollTo(0, 1000000);
+                }
+            } catch (e) {
+                // 如果出错，回退到完全替换
+                contentDom.innerHTML = newHtml;
+                lastRenderedLength = content.length;
+            }
+
+            // 更新光标位置
+            _updateCursor(contentDom);
+        }
+
         return {
             append,
+            appendChunk,
             over() {
                 dom.classList.remove('typing');
                 form.classList.remove('waiting');
+            },
+            getContentDom() {
+                return contentDom;
             }
         };
     }
