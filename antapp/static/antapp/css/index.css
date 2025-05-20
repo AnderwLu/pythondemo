@@ -111,3 +111,6 @@ textarea {
 .markdown-body {
     background: inherit;
 }
+.markdown-body .highlight pre,.markdown-body pre {
+    background-color: #e8f5e9 !important;
+}

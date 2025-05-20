@@ -19,12 +19,12 @@ var { createUserContent, createRobotContent } = (() => {
         dom.className = 'user block';
         dom.innerHTML = ` <div class="container">
     <div class="avatar">
-      ${username}
+    ${username}
     </div>
     <div class="content markdown-body">
-      ${_normalizeContent(content)}
+    ${_normalizeContent(content)}
     </div>
-  </div>`;
+</div>`;
         const hitBottom = isBottom();
         main.appendChild(dom);
         if (hitBottom) {

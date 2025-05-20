@@ -16,9 +16,9 @@ DEFAULT_MODEL = os.getenv('OPENAI_MODEL_41_MINI', 'gpt-4')
 logger = get_logger('aiClient')
 
 class AiClient:
-    def __init__(self, model=DEFAULT_MODEL,messages=[]):
+    def __init__(self, model=DEFAULT_MODEL, messages=None):
         self.model = model
-        self.messages = messages
+        self.messages = messages if messages is not None else []
         self.client = OpenAI(
             api_key=OPENAI_API_KEY,
             base_url=OPENAI_API_BASE
@@ -104,7 +104,7 @@ class AiClient:
                     "content": [
                         {"type": "text", "text": user_content},
                         *[{"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_data}"}} 
-                          for base64_data in image_base64_list]
+                        for base64_data in image_base64_list]
                     ]
                 }
             ]
@@ -155,3 +155,6 @@ class AiClient:
             logger.error("获取流式响应时出错: %s", str(e))
             raise
         
+    def clear_messages(self):
+        self.messages = []
+        logger.info("消息列表已清空")
