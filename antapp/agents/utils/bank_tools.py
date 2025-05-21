@@ -30,7 +30,7 @@ class BankTools:
         Returns:
             dict: 验证结果
         """
-        logger.info(f"验证营业执照信息: {license_info.get('company_name', '未知企业')}")
+        logger.info(f"验证营业执照信息: {license_info.get('depositorName', '未知企业')}")
         
         # 实际项目中应调用行内验证接口
         # 这里模拟验证结果
@@ -39,7 +39,7 @@ class BankTools:
             "message": "营业执照信息验证通过"
         }
     
-    def check_blacklist(self, company_name, registration_number):
+    def check_blacklist(self, depositorName, fileNo1):
         """
         检查企业是否在黑名单中
         
@@ -50,52 +50,39 @@ class BankTools:
         Returns:
             bool: 是否在黑名单中
         """
-        logger.info(f"检查企业黑名单: {company_name}")
+        logger.info(f"检查企业黑名单: {depositorName}")
         
         # 实际项目中应调用行内黑名单查询接口
         # 这里模拟查询结果
         return False
     
     def open_account(self, business_info):
-        """
-        调用行内开户系统接口
-        
-        Args:
-            business_info: 企业信息
+        """执行开户操作"""
+        try:
+            logger.info(f"开户请求数据: {business_info}")
+            # 生成账号
+            account_number = self._generate_account_number()
+            # 添加账号到业务数据中
+            business_info['acctNo'] = account_number
             
-        Returns:
-            dict: 开户结果
-        """
-        logger.info(f"调用开户接口: {business_info.get('company_name', '未知企业')}")
-        
-        # 验证营业执照
-        verify_result = self.verify_business_license(business_info)
-        if not verify_result["verified"]:
+            result = {
+                "success": True,
+                "message": "开户成功",
+                "account_info": {
+                    "account_number": account_number,
+                    "company_name": business_info['acctName'],
+                    "open_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+            }
+            logger.info(f"开户成功: {result}")
+            return result
+            
+        except Exception as e:
+            logger.error(f"开户操作失败: {str(e)}")
             return {
                 "success": False,
-                "message": verify_result["message"]
+                "message": f"开户失败：{str(e)}"
             }
-        
-        # 黑名单检查
-        if self.check_blacklist(business_info.get('company_name'), business_info.get('registration_number')):
-            return {
-                "success": False,
-                "message": "很抱歉，该企业不符合开户条件"
-            }
-        
-        # 实际项目中应调用行内开户接口
-        # 这里模拟开户过程
-        account_number = self._generate_account_number()
-        
-        return {
-            "success": True,
-            "message": f"{business_info['company_name']}开户成功！",
-            "account_info": {
-                "account_number": account_number,
-                "company_name": business_info['company_name'],
-                "open_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-        }
     
     def close_account(self, account_info):
         """
