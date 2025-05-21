@@ -2,6 +2,8 @@ import logging
 import random
 import string
 from datetime import datetime
+import requests
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +18,42 @@ class BankTools:
             api_base_url: 行内API基础URL
             api_key: 行内API密钥
         """
-        self.api_base_url = api_base_url
+        self.api_base_url = api_base_url or "http://localhost:4200"
         self.api_key = api_key
         # 在实际项目中，这里会初始化与行内系统的连接
+    
+    def call_remote_api(self, data):
+        """
+        调用远程开户接口
+        Args:
+            data: 开户数据
+        Returns:
+            dict: 接口响应结果
+        """
+        try:
+            url = f"{self.api_base_url}/ams/ucamTest/save"
+            headers = {
+                'Content-Type': 'application/json'
+            }
+            
+            logger.info(f"发送开户请求到: {url}")
+            logger.info(f"请求数据: {json.dumps(data, ensure_ascii=False)}")
+            
+            response = requests.post(
+                url=url,
+                headers=headers,
+                json=data,
+                timeout=30
+            )
+            
+            response.raise_for_status()
+            response_data = response.json()
+            logger.info(f"开户接口响应: {response_data}")
+            return response_data
+            
+        except Exception as e:
+            logger.error(f"调用远程接口失败: {str(e)}")
+            raise Exception(f"调用远程接口失败: {str(e)}")
     
     def verify_business_license(self, license_info):
         """
@@ -65,6 +100,10 @@ class BankTools:
             # 添加账号到业务数据中
             business_info['acctNo'] = account_number
             
+            # 调用远程接口并等待结果
+            remote_result = self.call_remote_api(business_info)
+            
+            # 返回结果
             result = {
                 "success": True,
                 "message": "开户成功",
@@ -74,15 +113,23 @@ class BankTools:
                     "open_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 }
             }
-            logger.info(f"开户成功: {result}")
+            if(remote_result.get("rtncode") == "000000"):
+                result["success"] = True
+                result["message"] = "开户成功"
+                logger.info(f"开户成功: {result}")
+            else:
+                result["success"] = False
+                result["message"] = remote_result.get("rtnmsg", "开户失败，未知错误")
+                logger.error(f"开户失败: {result}")
             return result
             
         except Exception as e:
-            logger.error(f"开户操作失败: {str(e)}")
-            return {
+            error_result = {
                 "success": False,
                 "message": f"开户失败：{str(e)}"
             }
+            logger.error(f"开户操作异常: {error_result}")
+            return error_result
     
     def close_account(self, account_info):
         """

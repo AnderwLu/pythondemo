@@ -20,14 +20,14 @@ class LicenseInfo(BaseModel):
     acctType: str = Field(..., description="账户类型,PRDA-基本户,GEDA-一般户,NTDA-临时户")
     billType: str = Field(..., description="业务类型,OPEN-开户,CLOSE-销户,CHANGE-变更")
     bankCode: str = Field(..., description="人行机构号(12位)")
-    bankName: str = Field(..., description="机构名称")
+    bankName: Optional[str] = Field(None, description="机构名称")
     userCode: str = Field(..., description="工号")
-    userName: str = Field(..., description="姓名")
+    userName: Optional[str] = Field(None, description="姓名")
     institutionCode: str = Field(..., description="金融机构编号")
-    institutionName: str = Field(..., description="金融机构名称")
-    ccyType: str = Field(..., description="币种,CNY-人民币 默认给人民币")
-    microEnterpriseFlag: str = Field(..., description="小微企业标识,TRUE-小微企业,FALSE-非小微企业")
-    simpleOpenFlag: str = Field(..., description="简易开户标志,TRUE-简易开户,FALSE-非简易开户")
+    institutionName: Optional[str] = Field(None, description="金融机构名称")
+    ccyType: str = Field(..., description="币种,SCCY-单币种,MCCY-多币种 默认单币种")
+    microEnterpriseFlag: str = Field(..., description="小微企业标识,TRUE-小微企业,FALS-非小微企业")
+    simpleOpenFlag: str = Field(..., description="简易开户标志,TRUE-简易开户,FALS-非简易开户")
     acctFileNo1: str = Field(..., description="账户文件号1,同注册号")
     acctFileType1: str = Field(..., description="账户文件类型1,ECER-登记证书,BIZL-营业执照")
     depositorName: str = Field(..., description="存款人名称,与企业名称一致")
@@ -35,7 +35,7 @@ class LicenseInfo(BaseModel):
     regFullAddress: str = Field(..., description="注册地址")
     telephone: str = Field(..., description="电话")
     uscc: str = Field(..., description="统一社会信用代码,营业执照注册号")
-    isIdentification: str = Field(..., description="证照未标明注册资金,TRUE-是,FALSE-否")
+    isIdentification: str = Field(..., description="证照未标明注册资金,NREG-证照已标明注册资金,REGF-证照未标明注册资金,注册资金大于0就赋值NREG否则就赋值REGF")
     regCurrency: str = Field(..., description="注册币种,CNY-人民币 默认给人民币")
     registeredCapital: str = Field(..., description="注册资本金额;表示货币金额，其中金额的整数部分最多13位数字，小数部分固定2位数字。 注：不带正负（即+-）号。例如一元只能为1.00，不能为1或者1.0，金额第一位非零数字前禁止补零（例如一元只能为1.00，不能为01.00或者前补更多0）。")
     regAreaCode: str = Field(..., description="注册地区代码,营业执照注册地址的地区代码")
@@ -44,8 +44,10 @@ class LicenseInfo(BaseModel):
     legalName: str = Field(..., description="法定代表人姓名,营业执照法定代表人姓名")
     legalNation: str = Field(..., description="法定代表人国籍,营业执照法定代表人国籍")
     legalIdcardNo: str = Field(..., description="法定代表人身份证号码,营业执照法定代表人身份证号码")
-    legalIdcardType: str = Field(..., description="法定代表人身份证类型,营业执照法定代表人身份证类型")
+    legalIdcardType: str = Field(..., description="法定代表人身份证类型,营业执照法定代表人身份证类型,IDCD-身份证,PSPT-护照,HMTP-驾驶证,MTID-军官证")
     legalBirthDate: str = Field(..., description="法定代表人出生日期,营业执照法定代表人出生日期")
+    currencyCategory: Optional[str] = Field("ORMB", description="币种类别,FRMB-外币+人民币,NRMB-仅外币,ORMB-仅人民币")
+    
 
 # 定义工具
 @function_tool
@@ -102,30 +104,30 @@ license_analysis_agent = Agent(
     - 法定代表人 -> legalName
     - 注册资本 -> registeredCapital（注意：需要转换为数字格式，如"壹拾万元"要转换为"100000.00"）
     
-    其他必填字段默认值：
+    其他必填字段默认值，没有默认值的都使用空字符串：
     - acctNo: ""（空字符串，由系统生成）
     - acctType: "PRDA"（基本户）
     - billType: "OPEN"（开户）
     - bankCode: "313333000016"（示例银行代码）
-    - bankName: "某某银行"
-    - userCode: "9999"
-    - userName: "系统管理员"
-    - institutionCode: "0000"
-    - institutionName: "某某银行"
-    - ccyType: "CNY"
+    - userCode: "1002639"
+    - institutionCode: "C1234321234321"
+    - ccyType: "SCCY"
     - microEnterpriseFlag: "TRUE"
-    - simpleOpenFlag: "FALSE"
+    - simpleOpenFlag: "FALS"
     - acctFileType1: "BIZL"
     - depositorType: "LPEP"
     - telephone: "0574-00000000"
-    - isIdentification: "FALSE"
+    - isIdentification: "REGF"
     - regCurrency: "CNY"
     - regAreaCode: "330281"
     - fileType1: "BIZL"
     - legalNation: "CHN"
-    - legalIdcardType: "01"
+    - legalIdcardType: "IDCD"
     - legalIdcardNo: "330281199001011234"
-    - legalBirthDate: "1990-01-01"
+    - legalBirthDate: "199001"
+    - userName: None
+    - bankName: None
+    - institutionName: None
 
     请将提取的信息以JSON格式返回，必须包含所有上述字段。示例格式：
     {
@@ -133,15 +135,12 @@ license_analysis_agent = Agent(
         "acctNo": "",
         "acctType": "PRDA",
         "billType": "OPEN",
-        "bankCode": "313333000016",
-        "bankName": "某某银行",
-        "userCode": "9999",
-        "userName": "系统管理员",
-        "institutionCode": "0000",
-        "institutionName": "某某银行",
-        "ccyType": "CNY",
+        "bankCode": "190011110390",
+        "userCode": "1002639",
+        "institutionCode": "C1234321234321",
+        "ccyType": "SCCY",
         "microEnterpriseFlag": "TRUE",
-        "simpleOpenFlag": "FALSE",
+        "simpleOpenFlag": "FALS",
         "acctFileNo1": "统一社会信用代码",
         "acctFileType1": "BIZL",
         "depositorName": "企业名称",
@@ -149,7 +148,7 @@ license_analysis_agent = Agent(
         "regFullAddress": "企业地址",
         "telephone": "0574-00000000",
         "uscc": "统一社会信用代码",
-        "isIdentification": "FALSE",
+        "isIdentification": "REGF",
         "regCurrency": "CNY",
         "registeredCapital": "100000.00",
         "regAreaCode": "330281",
@@ -158,8 +157,11 @@ license_analysis_agent = Agent(
         "legalName": "法定代表人姓名",
         "legalNation": "CHN",
         "legalIdcardNo": "330281199001011234",
-        "legalIdcardType": "01",
-        "legalBirthDate": "1990-01-01"
+        "legalIdcardType": "IDCD",
+        "legalBirthDate": "199001",
+        "userName": None,
+        "bankName": None,
+        "institutionName": None
     }
 
     注意：
