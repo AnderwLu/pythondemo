@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 from .views import deepseek_agent_stream
-from .views_bank import bank_business
+from .views_bank import bank_business, ams_agent
 
 urlpatterns = [
     path("hello/", views.hello),
@@ -17,4 +17,5 @@ urlpatterns = [
     
     # 银行业务代理系统路由 - 统一入口
     path('api/bank/business/', bank_business),
+    path('api/bank/ams/', ams_agent),
 ]

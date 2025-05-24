@@ -15,3 +15,13 @@ def bank_business(request):
         content = asyncio.run(main(keyword, images))
         return HttpResponse(content)
     return HttpResponse("清除成功")
+
+@csrf_exempt
+def ams_agent(request):
+    if request.method == "POST":
+        images = request.FILES.getlist('images')
+        keyword = request.POST.get("content")
+        # 使用 asyncio.run 运行异步函数
+        content = asyncio.run(main(keyword, images))
+        return HttpResponse(content)
+    return HttpResponse("清除成功")
