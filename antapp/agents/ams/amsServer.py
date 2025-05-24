@@ -39,7 +39,7 @@ story_agent = Agent(
 
 
 async def main():
-    input_prompt = "三只小羊去外太空的故事"
+    input_prompt = "三只小羊去外太空的故事很好笑的"
 
     # Ensure the entire workflow is a single trace
     with trace("Deterministic story flow"):
