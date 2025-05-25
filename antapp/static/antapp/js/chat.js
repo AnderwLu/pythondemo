@@ -26,6 +26,89 @@ textArea.onkeydown = e => {
     }
 };
 
+// 添加CSS动画（如果还没有）
+if (!document.getElementById('blinking-cursor-style')) {
+    const style = document.createElement('style');
+    style.id = 'blinking-cursor-style';
+    style.textContent = `
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .cursor-blink {
+            display: inline-block;
+            margin-left: 2px;
+            font-weight: bold;
+            animation: blink 1s step-end infinite;
+            position: absolute;
+            pointer-events: none;
+            z-index: 100;
+            mix-blend-mode: difference;
+            color: white;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// 创建光标元素
+const cursorSpan = document.createElement('span');
+cursorSpan.className = 'cursor-blink';
+cursorSpan.textContent = '|';
+
+// 光标控制相关函数
+function findLastTextNode(element) {
+    if (element.nodeType === 3) return element; // 文本节点
+
+    let lastTextNode = null;
+    for (let i = element.childNodes.length - 1; i >= 0; i--) {
+        const node = element.childNodes[i];
+        const textNode = findLastTextNode(node);
+        if (textNode) return textNode;
+    }
+    return null;
+}
+
+function showCursor(contentDom) {
+    const lastTextNode = findLastTextNode(contentDom);
+
+    if (lastTextNode) {
+        // 获取最后一个文本节点的位置
+        const range = document.createRange();
+        range.selectNodeContents(lastTextNode);
+        range.collapse(false); // 将范围折叠到末尾
+
+        // 获取位置
+        const rect = range.getBoundingClientRect();
+
+        // 设置光标位置
+        cursorSpan.style.left = `${rect.right}px`;
+        cursorSpan.style.top = `${rect.top}px`;
+
+        // 添加光标到DOM（如果还没有添加）
+        if (!cursorSpan.parentNode) {
+            document.body.appendChild(cursorSpan);
+        }
+    } else {
+        // 如果没有文本节点，将光标定位到contentDom的开始位置
+        const rect = contentDom.getBoundingClientRect();
+
+        // 设置光标位置到内容区域的左上角
+        cursorSpan.style.left = `${rect.left}px`;
+        cursorSpan.style.top = `${rect.top}px`;
+
+        // 添加光标到DOM
+        if (!cursorSpan.parentNode) {
+            document.body.appendChild(cursorSpan);
+        }
+    }
+}
+
+function hideCursor() {
+    if (cursorSpan.parentNode) {
+        cursorSpan.remove();
+    }
+}
+
 form.onsubmit = async e => {
     e.preventDefault();
     const content = textArea.value;
@@ -37,31 +120,11 @@ form.onsubmit = async e => {
     createUserContent('鲁');
     const robot = createRobotContent();
 
-    // 添加CSS动画（如果还没有）
-    if (!document.getElementById('blinking-cursor-style')) {
-        const style = document.createElement('style');
-        style.id = 'blinking-cursor-style';
-        style.textContent = `
-            @keyframes blink {
-                from, to { opacity: 1; }
-                50% { opacity: 0; }
-            }
-            .cursor-blink {
-                display: inline-block;
-                margin-left: 2px;
-                font-weight: bold;
-                animation: blink 1s step-end infinite;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    // 在robot元素的content区域添加一个专门的光标容器
+    // 在robot元素的content区域
     const contentDom = robot.getContentDom();
-    const cursorSpan = document.createElement('span');
-    cursorSpan.className = 'cursor-blink';
-    cursorSpan.textContent = '|';
-    contentDom.appendChild(cursorSpan);
+
+    // 在发送请求前先显示光标，让用户知道正在处理
+    showCursor(contentDom);
 
     // 构造 FormData
     const formData = new FormData();
@@ -86,24 +149,14 @@ form.onsubmit = async e => {
     const reader = resp.body.getReader();
     const decoder = new TextDecoder();
 
-    // 添加光标显示/隐藏函数
-    function showCursor() {
-        if (!cursorSpan.parentNode) {
-            contentDom.appendChild(cursorSpan);
-        }
+    // 确保光标可见 - 这是为了防止在请求和读取之间有任何光标被移除的情况
+    if (!cursorSpan.parentNode) {
+        document.body.appendChild(cursorSpan);
     }
-
-    function hideCursor() {
-        if (cursorSpan.parentNode) {
-            cursorSpan.remove();
-        }
-    }
-
-    // 初始显示光标
-    showCursor();
 
     // 缓存上一次处理的文本，用于增量渲染
     let lastText = '';
+    let updateCursorTimeout = null;
 
     while (1) {
         const { done, value } = await reader.read();
@@ -116,14 +169,18 @@ form.onsubmit = async e => {
         // 解码新的数据块
         const newText = decoder.decode(value, { stream: true });
 
-        // 临时隐藏光标
-        hideCursor();
-
         // 只追加新文本，而不是每次都重新渲染整个内容
         robot.appendChunk(newText);
 
-        // 重新显示光标
-        showCursor();
+        // 清除之前的超时
+        if (updateCursorTimeout) {
+            clearTimeout(updateCursorTimeout);
+        }
+
+        // 设置一个新的超时，减少光标更新频率
+        updateCursorTimeout = setTimeout(() => {
+            showCursor(contentDom);
+        }, 50); // 50ms延迟，减少闪烁
 
         // 确保滚动到底部
         document.documentElement.scrollTo(0, document.documentElement.scrollHeight);
